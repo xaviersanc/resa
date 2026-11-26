@@ -1,0 +1,32 @@
+# Dépendances
+node_modules/
+
+# Configuration locale et secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Système / éditeur
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Sorties de build / couverture
+coverage/
+dist/
+
+.git
+.github
+.vscode
+backlog
+doc
+README.md
+docker-compose.yml
+Dockerfile
