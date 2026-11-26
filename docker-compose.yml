@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${PGUSER}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_DB: ${PGDATABASE}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      # exécuté uniquement au premier démarrage (volume vide)
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "127.0.0.1:${PGPORT}:5432" # base joignable depuis ta machine uniquement
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
+        ]
+      interval: 2s
+      retries: 30
+
+  app:
+    build: .
+    env_file: .env
+    environment:
+      # dans le réseau Compose, la base s'appelle « db » et écoute sur 5432
+      PGHOST: db
+      PGPORT: "5432"
+      # dans le conteneur, l'application écoute toujours sur 3000
+      PORT: "3000"
+    ports:
+      - "${PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:
