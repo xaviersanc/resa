@@ -2,11 +2,8 @@ const { Pool, types } = require("pg");
 
 types.setTypeParser(1114, (value) => value);
 
-const pool = new Pool({
-  connectionString:
-    process.env.DATABASE_URL ||
-    "postgres://resa:Resa2026!Bdx@localhost:5432/resa",
-});
+// pg lit la configuration dans les variables PGHOST, PGPORT, PGUSER, PGPASSWORD, PGDATABASE.
+const pool = new Pool();
 
 pool.on("error", (err) => {
   console.error("PostgreSQL :", err.message);
