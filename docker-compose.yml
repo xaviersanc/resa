@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${PGUSER}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_DB: ${PGDATABASE}
+    volumes:
+      # - un volume nommé monté sur /var/lib/postgresql/data
+      # - ./db/init.sql monté dans /docker-entrypoint-initdb.d/ (exécuté au premier démarrage)
+      - db-data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "127.0.0.1:${PGPORT}:5432" # base joignable depuis ta machine uniquement
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
+        ]
+      interval: 2s
+      retries: 30
+
+  app:
+    # - construire l'image depuis le Dockerfile
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PGUSER: ${PGUSER}
+      PGPASSWORD: ${PGPASSWORD}
+      PGHOST: db
+      PGPORT: ${PGPORT}
+
+    # - charger les variables depuis .env (env_file)…
+    env_file:
+      - .env
+    # - …mais, dans le réseau Compose, la base s'appelle « db » et écoute sur 5432 : surcharge PGHOST et PGPORT
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+    # - dans le conteneur, l'application écoute toujours sur 3000 : surcharge aussi PORT: "3000"
+    - "${PORT:-3000}:3000"
+    # - publier le port ${PORT} de ta machine vers le port 3000 du conteneur : "${PORT:-3000}:3000"
+    
+    # - attendre que db soit « healthy » (depends_on + condition)
+  
+
+# déclarer le volume nommé
+volumes:
+  db-data:
