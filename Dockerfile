@@ -4,7 +4,6 @@ ENV NODE_ENV=production
 # 1. copier package.json et package-lock.json, puis installer UNIQUEMENT les dépendances de production :
 #    npm ci --omit=dev --ignore-scripts
 COPY package*.json ./
-COPY package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts
 #    → pourquoi copier ces deux fichiers AVANT le reste du code ?
 #    -> car il s'agit des dépendances de production, et que l'on veut profiter du cache Docker pour ne pas réinstaller les dépendances à chaque build si elles n'ont pas changé.

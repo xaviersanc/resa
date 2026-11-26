@@ -21,3 +21,12 @@ Thumbs.db
 # Sorties de build / couverture
 coverage/
 dist/
+
+.git
+.github
+.vscode
+backlog
+doc
+README.md
+docker-compose.yml
+Dockerfile
